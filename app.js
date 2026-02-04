@@ -9,29 +9,24 @@ function buildSheetData() {
   const celldata = [];
   const push = (r, c, v) => celldata.push({ r, c, v });
 
-  // Cabeçalho
   push(0, 0, { v: "Despesas do mês", m: "Despesas do mês", bl: 1, fs: 14 });
 
-  // Linhas
   push(1, 0, { v: "Aluguel", m: "Aluguel" });
   push(2, 0, { v: "Mercado", m: "Mercado" });
   push(3, 0, { v: "Transporte", m: "Transporte" });
   push(4, 0, { v: "Internet", m: "Internet" });
   push(5, 0, { v: "Lazer", m: "Lazer" });
 
-  // Valores iniciais
   push(1, 1, { v: 1200, m: "1200" });
   push(2, 1, { v: 650,  m: "650"  });
   push(3, 1, { v: 280,  m: "280"  });
   push(4, 1, { v: 120,  m: "120"  });
   push(5, 1, { v: 300,  m: "300"  });
 
-  // Labels
   push(7, 0, { v: "Total", m: "Total", bl: 1 });
   push(8, 0, { v: "Média", m: "Média", bl: 1 });
   push(9, 0, { v: "Status", m: "Status", bl: 1 });
 
-  // Respostas (vazio para aluno)
   const hintBg = "#f3f4f6";
   push(7, 1, { v: "", m: "", bg: hintBg });
   push(8, 1, { v: "", m: "", bg: hintBg });
@@ -46,17 +41,11 @@ function buildSheetData() {
   }];
 }
 
-function initLuckysheet() {
-  if (!window.luckysheet || typeof window.luckysheet.create !== "function") {
-    setStatus("bad", "❌ Luckysheet não carregou (verifique Console/F12 e Network por erros/404).");
-    return;
-  }
-
-  setStatus("muted", "✅ Planilha carregada. Faça o exercício e clique em “Verificar respostas”.");
-
+function createSheetWithLang(lang) {
   window.luckysheet.create({
     container: "luckysheet",
-    lang: "pt",
+    // ✅ "pt" causava o erro functionlist undefined. "en" é seguro.
+    lang,
     showinfobar: false,
     showsheetbar: true,
     showstatisticBar: true,
@@ -69,6 +58,40 @@ function initLuckysheet() {
     defaultColWidth: 120,
     defaultRowHeight: 26
   });
+}
+
+function initLuckysheet() {
+  if (!window.luckysheet || typeof window.luckysheet.create !== "function") {
+    setStatus("bad", "❌ Luckysheet não carregou (verifique Console/F12 e Network por erros/404).");
+    return;
+  }
+
+  // limpa container (importante em reset / reload)
+  const container = document.getElementById("luckysheet");
+  container.innerHTML = "";
+
+  try {
+    createSheetWithLang("en");
+    setStatus("muted", "✅ Planilha carregada. Faça o exercício e clique em “Verificar respostas”.");
+  } catch (e) {
+    // fallback final: tenta sem lang
+    try {
+      container.innerHTML = "";
+      window.luckysheet.create({
+        container: "luckysheet",
+        showinfobar: false,
+        showsheetbar: true,
+        showstatisticBar: true,
+        enableAddRow: false,
+        enableAddCol: false,
+        data: buildSheetData()
+      });
+      setStatus("muted", "✅ Planilha carregada (fallback).");
+    } catch (e2) {
+      console.error(e2);
+      setStatus("bad", "❌ Erro ao iniciar planilha. Veja Console (F12) para detalhes.");
+    }
+  }
 }
 
 // Helpers
@@ -123,8 +146,6 @@ function checkAnswers() {
 }
 
 function resetExercise() {
-  const container = document.getElementById("luckysheet");
-  container.innerHTML = "";
   initLuckysheet();
   setStatus("muted", "Exercício resetado. Edite e verifique novamente.");
 }
