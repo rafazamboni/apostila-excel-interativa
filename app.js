@@ -41,19 +41,44 @@ function buildSheetData() {
   }];
 }
 
+/**
+ * ✅ Patch: cria aliases pt-br → (en ou zh)
+ * Isso evita o crash "functionlist undefined" em navegadores pt-BR.
+ */
+function patchLuckysheetLocale() {
+  // Luckysheet usa um objeto global "locale" (na maioria dos builds CDN)
+  const loc = window.locale || null;
+  if (!loc || typeof loc !== "object") return;
+
+  const base = loc["en"] || loc["zh"];
+  if (!base) return;
+
+  const aliases = ["pt", "pt-br", "pt-BR", "pt_br", "pt_BR"];
+  for (const k of aliases) {
+    if (!loc[k]) loc[k] = base;
+  }
+}
+
 function initLuckysheet() {
   if (!window.luckysheet || typeof window.luckysheet.create !== "function") {
     setStatus("bad", "❌ Luckysheet não carregou. Veja Console (F12) e Network (arquivos 404).");
     return;
   }
 
+  // ✅ aplica patch ANTES de criar a planilha
+  patchLuckysheetLocale();
+
   const container = document.getElementById("luckysheet");
   container.innerHTML = "";
 
   try {
-    // ✅ NÃO defina lang aqui (pt/en causam functionlist undefined)
     window.luckysheet.create({
       container: "luckysheet",
+
+      // ✅ força um idioma que agora existe (alias)
+      // (vai ficar em inglês se o base for "en", mas não quebra)
+      lang: "pt-br",
+
       showinfobar: false,
       showsheetbar: true,
       showstatisticBar: true,
