@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Apostila Interativa - Excel (Intermediário)</title>
 
-  <!-- Luckysheet (fixe a versão para evitar surpresas do @latest) -->
+  <!-- Luckysheet (fixe a versão) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet@2.1.13/dist/plugins/css/pluginsCss.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet@2.1.13/dist/plugins/plugins.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet@2.1.13/dist/css/luckysheet.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet@2.1.13/dist/assets/iconfont/iconfont.css">
 
@@ -23,8 +24,8 @@
     </div>
 
     <div class="actions">
-      <button id="btnReset" class="btn">Resetar exercício</button>
-      <button id="btnCheck" class="btn primary">Verificar respostas</button>
+      <button id="btnReset" class="btn" type="button">Resetar exercício</button>
+      <button id="btnCheck" class="btn primary" type="button">Verificar respostas</button>
     </div>
   </header>
 
@@ -57,9 +58,9 @@
 
       <section class="card">
         <h2>Status</h2>
-        <div id="status" class="status muted">Edite a planilha e clique em “Verificar respostas”.</div>
+        <div id="status" class="status muted">Carregando planilha…</div>
         <div class="hint">
-          Dica: você pode errar de propósito e ver o feedback 🙂
+          Se a planilha não aparecer, abra o Console (F12) e veja se há erro/404.
         </div>
       </section>
 
