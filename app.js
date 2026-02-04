@@ -28,9 +28,9 @@ function buildSheetData() {
   push(9, 0, { v: "Status", m: "Status", bl: 1 });
 
   const hintBg = "#f3f4f6";
-  push(7, 1, { v: "", m: "", bg: hintBg });
-  push(8, 1, { v: "", m: "", bg: hintBg });
-  push(9, 1, { v: "", m: "", bg: hintBg });
+  push(7, 1, { v: "", m: "", bg: hintBg }); // B8
+  push(8, 1, { v: "", m: "", bg: hintBg }); // B9
+  push(9, 1, { v: "", m: "", bg: hintBg }); // B10
 
   return [{
     name: "Aula 01",
@@ -41,56 +41,36 @@ function buildSheetData() {
   }];
 }
 
-function createSheetWithLang(lang) {
-  window.luckysheet.create({
-    container: "luckysheet",
-    // ✅ "pt" causava o erro functionlist undefined. "en" é seguro.
-    lang,
-    showinfobar: false,
-    showsheetbar: true,
-    showstatisticBar: true,
-    enableAddRow: false,
-    enableAddCol: false,
-    data: buildSheetData(),
-    column: 6,
-    row: 18,
-    columnlen: { 0: 200, 1: 160, 2: 140, 3: 140 },
-    defaultColWidth: 120,
-    defaultRowHeight: 26
-  });
-}
-
 function initLuckysheet() {
   if (!window.luckysheet || typeof window.luckysheet.create !== "function") {
-    setStatus("bad", "❌ Luckysheet não carregou (verifique Console/F12 e Network por erros/404).");
+    setStatus("bad", "❌ Luckysheet não carregou. Veja Console (F12) e Network (arquivos 404).");
     return;
   }
 
-  // limpa container (importante em reset / reload)
   const container = document.getElementById("luckysheet");
   container.innerHTML = "";
 
   try {
-    createSheetWithLang("en");
+    // ✅ NÃO defina lang aqui (pt/en causam functionlist undefined)
+    window.luckysheet.create({
+      container: "luckysheet",
+      showinfobar: false,
+      showsheetbar: true,
+      showstatisticBar: true,
+      enableAddRow: false,
+      enableAddCol: false,
+      data: buildSheetData(),
+      column: 6,
+      row: 18,
+      columnlen: { 0: 200, 1: 160, 2: 140, 3: 140 },
+      defaultColWidth: 120,
+      defaultRowHeight: 26
+    });
+
     setStatus("muted", "✅ Planilha carregada. Faça o exercício e clique em “Verificar respostas”.");
   } catch (e) {
-    // fallback final: tenta sem lang
-    try {
-      container.innerHTML = "";
-      window.luckysheet.create({
-        container: "luckysheet",
-        showinfobar: false,
-        showsheetbar: true,
-        showstatisticBar: true,
-        enableAddRow: false,
-        enableAddCol: false,
-        data: buildSheetData()
-      });
-      setStatus("muted", "✅ Planilha carregada (fallback).");
-    } catch (e2) {
-      console.error(e2);
-      setStatus("bad", "❌ Erro ao iniciar planilha. Veja Console (F12) para detalhes.");
-    }
+    console.error(e);
+    setStatus("bad", "❌ Erro ao iniciar a planilha. Veja Console (F12).");
   }
 }
 
