@@ -1,83 +1,136 @@
-<!doctype html>
-<html lang="pt-br">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Apostila Interativa - Excel (Intermediário)</title>
+function setStatus(type, text) {
+  const el = document.getElementById("status");
+  el.classList.remove("muted", "ok", "bad");
+  el.classList.add(type);
+  el.textContent = text;
+}
 
-  <!-- Luckysheet (fixe a versão) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet@2.1.13/dist/plugins/css/pluginsCss.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet@2.1.13/dist/plugins/plugins.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet@2.1.13/dist/css/luckysheet.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet@2.1.13/dist/assets/iconfont/iconfont.css">
+function buildSheetData() {
+  const celldata = [];
+  const push = (r, c, v) => celldata.push({ r, c, v });
 
-  <link rel="stylesheet" href="./style.css" />
-</head>
-<body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="dot"></div>
-      <div>
-        <div class="title">Apostila Interativa — Excel (Intermediário)</div>
-        <div class="subtitle">Aula 01 — SOMA, MÉDIA e SE (com planilha editável)</div>
-      </div>
-    </div>
+  // Cabeçalho
+  push(0, 0, { v: "Despesas do mês", m: "Despesas do mês", bl: 1, fs: 14 });
 
-    <div class="actions">
-      <button id="btnReset" class="btn" type="button">Resetar exercício</button>
-      <button id="btnCheck" class="btn primary" type="button">Verificar respostas</button>
-    </div>
-  </header>
+  // Linhas
+  push(1, 0, { v: "Aluguel", m: "Aluguel" });
+  push(2, 0, { v: "Mercado", m: "Mercado" });
+  push(3, 0, { v: "Transporte", m: "Transporte" });
+  push(4, 0, { v: "Internet", m: "Internet" });
+  push(5, 0, { v: "Lazer", m: "Lazer" });
 
-  <main class="layout">
-    <aside class="panel">
-      <section class="card">
-        <h2>Objetivo</h2>
-        <p>
-          Nesta aula, o colaborador vai praticar <b>SOMA</b>, <b>MÉDIA</b> e <b>SE</b>
-          direto em uma planilha (estilo Excel).
-        </p>
-      </section>
+  // Valores iniciais
+  push(1, 1, { v: 1200, m: "1200" });
+  push(2, 1, { v: 650,  m: "650"  });
+  push(3, 1, { v: 280,  m: "280"  });
+  push(4, 1, { v: 120,  m: "120"  });
+  push(5, 1, { v: 300,  m: "300"  });
 
-      <section class="card">
-        <h2>Instruções do exercício</h2>
+  // Labels
+  push(7, 0, { v: "Total", m: "Total", bl: 1 });
+  push(8, 0, { v: "Média", m: "Média", bl: 1 });
+  push(9, 0, { v: "Status", m: "Status", bl: 1 });
 
-        <ol class="steps">
-          <li>Preencha ou ajuste os valores em <b>B2:B6</b> (se quiser testar).</li>
-          <li>Em <b>B8</b>, calcule o <b>Total</b> com <code>=SOMA(B2:B6)</code>.</li>
-          <li>Em <b>B9</b>, calcule a <b>Média</b> com <code>=MÉDIA(B2:B6)</code>.</li>
-          <li>Em <b>B10</b>, escreva uma <b>SE</b> que mostre:
-            <ul>
-              <li><code>“OK”</code> se o total (B8) for <b>≤ 2500</b></li>
-              <li><code>“ACIMA DO LIMITE”</code> se for <b>&gt; 2500</b></li>
-            </ul>
-            Ex.: <code>=SE(B8&gt;2500;"ACIMA DO LIMITE";"OK")</code>
-          </li>
-        </ol>
-      </section>
+  // Respostas (vazio para aluno)
+  const hintBg = "#f3f4f6";
+  push(7, 1, { v: "", m: "", bg: hintBg });
+  push(8, 1, { v: "", m: "", bg: hintBg });
+  push(9, 1, { v: "", m: "", bg: hintBg });
 
-      <section class="card">
-        <h2>Status</h2>
-        <div id="status" class="status muted">Carregando planilha…</div>
-        <div class="hint">
-          Se a planilha não aparecer, abra o Console (F12) e veja se há erro/404.
-        </div>
-      </section>
+  return [{
+    name: "Aula 01",
+    index: 0,
+    status: 1,
+    order: 0,
+    celldata
+  }];
+}
 
-      <footer class="footnote">
-        Publicado via GitHub Pages • Sem backend • 100% gratuito
-      </footer>
-    </aside>
+function initLuckysheet() {
+  if (!window.luckysheet || typeof window.luckysheet.create !== "function") {
+    setStatus("bad", "❌ Luckysheet não carregou (verifique Console/F12 e Network por erros/404).");
+    return;
+  }
 
-    <section class="sheetWrap">
-      <div id="luckysheet" class="sheet"></div>
-    </section>
-  </main>
+  setStatus("muted", "✅ Planilha carregada. Faça o exercício e clique em “Verificar respostas”.");
 
-  <!-- Dependências do Luckysheet -->
-  <script src="https://cdn.jsdelivr.net/npm/luckysheet@2.1.13/dist/plugins/js/plugin.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/luckysheet@2.1.13/dist/luckysheet.umd.js"></script>
+  window.luckysheet.create({
+    container: "luckysheet",
+    lang: "pt",
+    showinfobar: false,
+    showsheetbar: true,
+    showstatisticBar: true,
+    enableAddRow: false,
+    enableAddCol: false,
+    data: buildSheetData(),
+    column: 6,
+    row: 18,
+    columnlen: { 0: 200, 1: 160, 2: 140, 3: 140 },
+    defaultColWidth: 120,
+    defaultRowHeight: 26
+  });
+}
 
-  <script src="./app.js"></script>
-</body>
-</html>
+// Helpers
+function safeNumber(v) {
+  if (v === null || v === undefined) return NaN;
+  if (typeof v === "number") return v;
+  const s = String(v).replace(/\./g, "").replace(",", ".");
+  const n = Number(s);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+function expectedTotal() {
+  const vals = [1,2,3,4,5].map(r => safeNumber(window.luckysheet.getCellValue(r, 1)));
+  if (!vals.every(n => Number.isFinite(n))) return NaN;
+  return vals.reduce((a,b) => a + b, 0);
+}
+function expectedAverage() {
+  const t = expectedTotal();
+  if (!Number.isFinite(t)) return NaN;
+  return t / 5;
+}
+
+function checkAnswers() {
+  const totalAluno = safeNumber(window.luckysheet.getCellValue(7, 1));
+  const mediaAluno = safeNumber(window.luckysheet.getCellValue(8, 1));
+  const statusAluno = String(window.luckysheet.getCellValue(9, 1) ?? "").trim().toUpperCase();
+
+  const totalEsperado = expectedTotal();
+  const mediaEsperada = expectedAverage();
+
+  if (!Number.isFinite(totalEsperado) || !Number.isFinite(mediaEsperada)) {
+    setStatus("bad", "Os valores em B2:B6 precisam ser numéricos para validar.");
+    return;
+  }
+
+  const tol = 0.0001;
+  const okTotal = Number.isFinite(totalAluno) && Math.abs(totalAluno - totalEsperado) < tol;
+  const okMedia = Number.isFinite(mediaAluno) && Math.abs(mediaAluno - mediaEsperada) < tol;
+
+  const statusEsperado = (totalEsperado > 2500) ? "ACIMA DO LIMITE" : "OK";
+  const okStatus = statusAluno === statusEsperado;
+
+  if (okTotal && okMedia && okStatus) {
+    setStatus("ok", "✅ Perfeito! Total, Média e SE estão corretos.");
+  } else {
+    const erros = [];
+    if (!okTotal) erros.push("Total (B8)");
+    if (!okMedia) erros.push("Média (B9)");
+    if (!okStatus) erros.push("Status/SE (B10)");
+    setStatus("bad", `❌ Ajuste: ${erros.join(", ")}.`);
+  }
+}
+
+function resetExercise() {
+  const container = document.getElementById("luckysheet");
+  container.innerHTML = "";
+  initLuckysheet();
+  setStatus("muted", "Exercício resetado. Edite e verifique novamente.");
+}
+
+window.addEventListener("load", () => {
+  initLuckysheet();
+  document.getElementById("btnCheck").addEventListener("click", checkAnswers);
+  document.getElementById("btnReset").addEventListener("click", resetExercise);
+});
